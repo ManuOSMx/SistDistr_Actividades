@@ -1,6 +1,6 @@
 #Cliente-Servidor
 
-Compilar: 
+Compilar:
     - javac Servidor.java
     - javac Cliente.java
     - java Servidor
