@@ -1,6 +1,6 @@
 #Threads
 
-Compilar: 
+Compilar:
     - javac Servidor2.java
     - javac Cliente2.java
     - java Cliente2
