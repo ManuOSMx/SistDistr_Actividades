@@ -10,7 +10,7 @@ public class A extends Thread {
                 n++;
             }    
         } catch (Exception e) {
-            //TODO: handle exception
+            System.out.println("Error: "+ e.getMessage());
         }       
     }
     public static void main(String[] args) throws Exception {
