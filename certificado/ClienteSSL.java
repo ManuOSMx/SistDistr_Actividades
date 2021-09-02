@@ -12,10 +12,11 @@ public class ClienteSSL {
         DataInputStream entrada = new DataInputStream(conexion.getInputStream());
         
         salida.writeDouble(1.0);
-        
+        //Evitamos que el Cliente termine antes que el servidor
+        Thread.sleep(1000);
+
         salida.close();
         entrada.close();
         conexion.close();
-        
     }
 }
