@@ -2,7 +2,7 @@
 (Sustituir los # ó x por la clave (minimo 6 caracteres))
 compilar:
   - keytool -genkeypair -keyalg RSA -alias certificado_servidor -keystore keystore_servidor.jks -storepass ######
-<img align="center" alt="img" width="25%" height="auto" src="https://github.com/ManuOSMx/SistDistr_Actividades/blob/main/certificado/img/SSL.PNG"/>
+<img align="center" alt="img" width="40%" height="auto" src="https://github.com/ManuOSMx/SistDistr_Actividades/blob/main/certificado/img/SSL.PNG"/>
   - keytool -exportcert -keystore keystore_servidor.jks -alias certificado_servidor -rfc -file certificado_servidor.pem
   - keytool -import -alias certificado_servidor -file certificado_servidor.pem -keystore keystore_cliente.jks -storepass xxxxxx
   - javac ServidorSSL.java
