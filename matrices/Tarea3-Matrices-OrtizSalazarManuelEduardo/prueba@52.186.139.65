@@ -1,0 +1,300 @@
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class Matrices {
+    static int N = 10;
+    static long checksum;
+    static long[][] A = new long[N][N];
+    static long[][] B = new long[N][N];
+    static long[][] C = new long[N][N];
+    static long[][] C1 = new long[N / 2][N / 2];
+    static long[][] C2 = new long[N / 2][N / 2];
+    static long[][] C3 = new long[N / 2][N / 2];
+    static long[][] C4 = new long[N / 2][N / 2];
+
+    static boolean esNumero(String cad) {
+        try {
+            Integer.parseInt(cad);
+            return true;
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+    }
+
+    static class Worker extends Thread {
+        Socket conexion;
+        int nodo;
+
+        Worker(Socket conexion) {
+            this.conexion = conexion;
+        }
+
+        public void run() {
+            try {
+                DataOutputStream salida = new DataOutputStream(conexion.getOutputStream());
+                DataInputStream entrada = new DataInputStream(conexion.getInputStream());
+                /* Iniciamos las matrices A y B */
+                nodo = entrada.readInt();
+
+                switch (nodo) {
+                    case 1:
+                        // Mando a1 y b1
+                        for (int i = 0; i < N / 2; i++) {
+                            for (int j = 0; j < N; j++) {
+                                salida.writeLong(A[i][j]);
+                            }
+                        }
+                        for (int i = 0; i < N / 2; i++) {
+                            for (int j = 0; j < N; j++) {
+                                salida.writeLong(B[i][j]);
+                            }
+                        }
+                        for (int i = 0; i < N / 2; i++) {
+                            for (int j = 0; j < N / 2; j++) {
+                                C1[i][j] = entrada.readLong();
+                            }
+                        }
+
+                        break;
+
+                    case 2:
+                        // Mando a1 y b2
+                        for (int i = 0; i < N / 2; i++) {
+                            for (int j = 0; j < N; j++) {
+                                salida.writeLong(A[i][j]);
+                            }
+                        }
+                        for (int i = N / 2; i < N; i++) {
+                            for (int j = 0; j < N; j++) {
+                                salida.writeLong(B[i][j]);
+                            }
+                        }
+                        for (int i = 0; i < N / 2; i++) {
+                            for (int j = 0; j < N / 2; j++) {
+                                C2[i][j] = entrada.readLong();
+                            }
+                        }
+
+                        break;
+                    case 3:
+                        // mando a2 y b1
+                        for (int i = N / 2; i < N; i++) {
+                            for (int j = 0; j < N; j++) {
+                                salida.writeLong(A[i][j]);
+                            }
+                        }
+                        for (int i = 0; i < N / 2; i++) {
+                            for (int j = 0; j < N; j++) {
+                                salida.writeLong(B[i][j]);
+                            }
+                        }
+                        for (int i = 0; i < N / 2; i++) {
+                            for (int j = 0; j < N / 2; j++) {
+                                C3[i][j] = entrada.readLong();
+                            }
+                        }
+
+                        break;
+                    case 4:
+                        // mando a2 y b2
+                        for (int i = N / 2; i < N; i++) {
+                            for (int j = 0; j < N; j++) {
+                                salida.writeLong(A[i][j]);
+                            }
+                        }
+                        for (int i = N / 2; i < N; i++) {
+                            for (int j = 0; j < N; j++) {
+                                salida.writeLong(B[i][j]);
+                            }
+                        }
+                        for (int i = 0; i < N / 2; i++) {
+                            for (int j = 0; j < N / 2; j++) {
+                                C4[i][j] = entrada.readLong();
+                            }
+                        }
+
+                        break;
+                    default:
+                        System.out.println("Algo paso ...");
+                        break;
+                }
+
+                entrada.close();
+                salida.close();
+                conexion.close();
+            } catch (Exception e) {
+                System.out.println("Quizas el nodo no es el correcto...");
+                System.err.println("Ocurrio un error");
+            }
+        }
+    }
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+
+        if (args.length > 1 && esNumero(args[1]) == true) {
+            System.out.println("Forma de ejecutar :");
+            System.out.println("java MMD <nodo> <dir.ip>");
+            System.exit(-1);
+            if (Integer.valueOf(args[0]) == 0) {
+                System.out.println("Forma de ejecutar :");
+                System.out.println("java MMD 0");
+                System.exit(-1);
+            }
+        }
+
+        int nodo = Integer.valueOf(args[0]);
+        String ip = "localhost";
+
+        if (nodo != 0) {
+            ip = args[1];
+        }
+
+        if (nodo == 0) {
+            System.out.println("Matriz A");
+
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    A[i][j] = i + 3 * j;
+                }
+            }
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < N; j++) {
+                    B[i][j] = i - 3 * j;
+                }
+            }
+
+            /* Transponemos B */
+
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < i; j++) {
+                    long x = B[i][j];
+                    B[i][j] = B[j][i];
+                    B[j][i] = x;
+                }
+            }
+            // Impresion
+            for (int i = 0; i < N; i++) {
+                System.out.println();
+                for (int j = 0; j < N; j++) {
+                    System.out.print(A[i][j] + "\t");
+                }
+            }
+            System.out.println("\n===========================================================");
+            System.out.println("Matriz B");
+            for (int i = 0; i < N; i++) {
+                System.out.println();
+                for (int j = 0; j < N; j++) {
+                    System.out.print(B[i][j] + "\t");
+                }
+            }
+
+            ServerSocket servidor = new ServerSocket(40000);
+            Worker[] v = new Worker[4];
+
+            int i = 0;
+
+            for (;;) {
+                if (i == 4) {
+                    break;
+                }
+                Socket conexion = servidor.accept();
+                v[i] = new Worker(conexion);
+                v[i].start();
+                i++;
+            }
+            i = 0;
+            for (;;) {
+                if (i == 4) {
+                    break;
+                }
+                v[i].join();
+                i++;
+            }
+
+            for (int j = 0; j < N / 2; j++) {
+                for (int k = 0; k < N / 2; k++) {
+                    C[j][k] = C1[j][k];
+                    C[j][k + N / 2] = C2[j][k];
+                    C[j + N / 2][k] = C3[j][k];
+                    C[j + N / 2][k + N / 2] = C4[j][k];
+                }
+            }
+
+            for (long[] fila : C) {
+                for (long columna : fila) {
+                    checksum += columna;
+                }
+            }
+
+            if (N < 20) {
+                System.out.println("Multiplicacion:");
+                for (int j = 0; j < N; j++) {
+                    System.out.println();
+                    for (int k = 0; k < N; k++) {
+                        System.out.print(C[j][k] + "\t");
+                    }
+                }
+            }
+            
+            System.out.println("\n\tChecksum = " + checksum);
+            /* Aqui se tienen que recibir los resultados de todos los clientes */
+        } else {
+            Socket conexion = null;
+            for (;;) {
+                try {
+                    conexion = new Socket(ip, 40000);
+                    break;
+                } catch (Exception e) {
+                    System.out.println("Reintentando conexion");
+                    Thread.sleep(100);
+                }
+            }
+
+            DataOutputStream salida = new DataOutputStream(conexion.getOutputStream());
+            DataInputStream entrada = new DataInputStream(conexion.getInputStream());
+
+            salida.writeInt(nodo);
+
+            long[][] A_Temp = new long[N / 2][N];
+            long[][] B_Temp = new long[N / 2][N];
+            long[][] C_Temp = new long[N / 2][N / 2];
+
+            System.out.println("\n A :");
+            for (int i = 0; i < N / 2; i++) {
+                for (int j = 0; j < N; j++) {
+                    A_Temp[i][j] = entrada.readLong();
+                }
+            }
+            System.out.println("\n B :");
+            for (int i = 0; i < N / 2; i++) {
+                for (int j = 0; j < N; j++) {
+                    B_Temp[i][j] = entrada.readLong();
+                }
+            }
+            System.out.println("\n");
+            for (int i = 0; i < N / 2; i++) {
+                for (int j = 0; j < N / 2; j++) {
+                    for (int k = 0; k < N; k++) {
+                        C_Temp[i][j] += A_Temp[i][k] * B_Temp[j][k];
+                    }
+                }
+            }
+
+            for (int i = 0; i < N / 2; i++) {
+                for (int j = 0; j < N / 2; j++) {
+                    salida.writeLong(C_Temp[i][j]);
+                }
+            }
+
+            entrada.close();
+            salida.close();
+            conexion.close();
+
+        }
+
+    }
+
+}
